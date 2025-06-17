@@ -1,4 +1,4 @@
-name: Newman Tests with HTML Report
+name: Newman Tests with HTMLExtra Report
 
 on:
   push:
@@ -10,28 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    # Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Node.js
-      uses: actions/setup-node@v3
+    # Install Node.js
+    - name: Install Node
+      uses: actions/setup-node@v2
       with:
-        node-version: '18'
+        node-version: '16.x'
 
-    - name: Install Newman and HTMLExtra Reporter
+    # Install newman and newman-reporter-htmlextra
+    - name: Install newman
       run: |
         npm install -g newman
         npm install -g newman-reporter-htmlextra
 
-    - name: Run Newman with HTMLExtra Report
+    # Create a directory to store test results
+    - name: Make Directory for results
+      run: mkdir -p testResults
+
+    # Run the Postman collection and generate HTMLExtra report
+    - name: Run API Tests
       run: |
         newman run "Restful Booker BVT.postman_collection.json" \
           -e "Production.postman_environment.json" \
           -r htmlextra \
-          --reporter-htmlextra-export newman/htmlreport.html
+          --reporter-htmlextra-export testResults/htmlreport.html
 
-    - name: Upload HTML Report Artifact
-      uses: actions/upload-artifact@v3
+    # Upload the report to GitHub Actions Artifacts
+    - name: Output the run Details
+      uses: actions/upload-artifact@v2
       with:
         name: newman-html-report
-        path: newman/htmlreport.html
+        path: testResults
